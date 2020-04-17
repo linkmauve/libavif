@@ -327,6 +327,7 @@ static avifResult avifImageYUVAnyToRGBAnySlow(avifImage * image, avifRGBImage * 
     const float * const unormFloatTableUV = state->unormFloatTableUV;
     const uint32_t maxUVI = ((image->width + state->formatInfo.chromaShiftX) >> state->formatInfo.chromaShiftX) - 1;
     const uint32_t maxUVJ = ((image->height + state->formatInfo.chromaShiftY) >> state->formatInfo.chromaShiftY) - 1;
+    const avifBool hasColor = (image->yuvPlanes[AVIF_CHAN_U] && image->yuvPlanes[AVIF_CHAN_V]);
 
     const uint16_t yuvMaxChannel = (uint16_t)((1 << image->depth) - 1);
     const float rgbMaxChannel = (float)((1 << rgb->depth) - 1);
@@ -335,7 +336,7 @@ static avifResult avifImageYUVAnyToRGBAnySlow(avifImage * image, avifRGBImage * 
         uint8_t * ptrY8 = &image->yuvPlanes[AVIF_CHAN_Y][(j * image->yuvRowBytes[AVIF_CHAN_Y])];
         uint8_t * ptrU8 = NULL;
         uint8_t * ptrV8 = NULL;
-        if (image->yuvPlanes[AVIF_CHAN_U] && image->yuvPlanes[AVIF_CHAN_V]) {
+        if (hasColor) {
             ptrU8 = &image->yuvPlanes[AVIF_CHAN_U][(uvJ * image->yuvRowBytes[AVIF_CHAN_U])];
             ptrV8 = &image->yuvPlanes[AVIF_CHAN_V][(uvJ * image->yuvRowBytes[AVIF_CHAN_V])];
         }
@@ -353,7 +354,7 @@ static avifResult avifImageYUVAnyToRGBAnySlow(avifImage * image, avifRGBImage * 
             // clamp incoming data to protect against bad LUT lookups
             if (image->depth == 8) {
                 unormY = (uint16_t)AVIF_MIN(ptrY8[i], yuvMaxChannel);
-                if (ptrU8 && ptrV8) {
+                if (hasColor) {
                     unormU = (uint16_t)AVIF_MIN(ptrU8[uvI], yuvMaxChannel);
                     unormV = (uint16_t)AVIF_MIN(ptrV8[uvI], yuvMaxChannel);
                 } else {
@@ -362,7 +363,7 @@ static avifResult avifImageYUVAnyToRGBAnySlow(avifImage * image, avifRGBImage * 
                 }
             } else {
                 unormY = AVIF_MIN(ptrY16[i], yuvMaxChannel);
-                if (ptrU16 && ptrV16) {
+                if (hasColor) {
                     unormU = AVIF_MIN(ptrU16[uvI], yuvMaxChannel);
                     unormV = AVIF_MIN(ptrV16[uvI], yuvMaxChannel);
                 } else {
@@ -379,9 +380,15 @@ static avifResult avifImageYUVAnyToRGBAnySlow(avifImage * image, avifRGBImage * 
             float R, G, B;
 
             if (state->identity) {
-                G = Y;
-                B = Cb;
-                R = Cr;
+                if (hasColor) {
+                    G = Y;
+                    B = Cb;
+                    R = Cr;
+                } else {
+                    G = Y;
+                    B = Y;
+                    R = Y;
+                }
             } else {
                 R = Y + (2 * (1 - kr)) * Cr;
                 B = Y + (2 * (1 - kb)) * Cb;
