@@ -421,7 +421,13 @@ static const int avifMatrixCoefficientsTableSize = sizeof(matrixCoefficientsTabl
 
 static avifBool calcYUVInfoFromNCLX(avifNclxColorProfile * nclx, float coeffs[3])
 {
-    if (nclx->matrixCoefficients == AVIF_NCLX_MATRIX_COEFFICIENTS_CHROMA_DERIVED_NCL) {
+    if (nclx->matrixCoefficients == AVIF_NCLX_MATRIX_COEFFICIENTS_IDENTITY) {
+        // Signal identity
+        coeffs[0] = 0.0f;
+        coeffs[1] = 0.0f;
+        coeffs[2] = 0.0f;
+        return AVIF_TRUE;
+    } else if (nclx->matrixCoefficients == AVIF_NCLX_MATRIX_COEFFICIENTS_CHROMA_DERIVED_NCL) {
         float primaries[8];
         avifNclxColourPrimariesGetValues(nclx->colourPrimaries, primaries);
         float const rX = primaries[0];

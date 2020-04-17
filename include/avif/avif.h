@@ -464,6 +464,9 @@ typedef struct avifReformatState
     // LUTs for going from YUV limited/full unorm -> full range RGB FP32
     float unormFloatTableY[1 << 12];
     float unormFloatTableUV[1 << 12];
+
+    // YUV planes are actually GBR (AVIF_NCLX_MATRIX_COEFFICIENTS_IDENTITY); don't convert, just copy
+    avifBool identity;
 } avifReformatState;
 avifBool avifPrepareReformatState(avifImage * image, avifRGBImage * rgb, avifReformatState * state);
 
