@@ -404,12 +404,13 @@ struct avifMatrixCoefficientsTable
 
 // https://www.itu.int/rec/T-REC-H.273-201612-I/en
 static const struct avifMatrixCoefficientsTable matrixCoefficientsTables[] = {
-    //{ AVIF_NCLX_MATRIX_COEFFICIENTS_IDENTITY, "Identity", 0.0f, 0.0f, }, // FIXME: Identity matrix can't represent using Kr and Kb.
+    //{ AVIF_NCLX_MATRIX_COEFFICIENTS_IDENTITY, "Identity", 0.0f, 0.0f, }, // Handled elsewhere
     { AVIF_NCLX_MATRIX_COEFFICIENTS_BT709, "BT.709", 0.2126f, 0.0722f },
     { AVIF_NCLX_MATRIX_COEFFICIENTS_USFC_73682, "USFC 73.682", 0.30f, 0.11f },
     { AVIF_NCLX_MATRIX_COEFFICIENTS_BT601_7_625, "BT.601-7 625", 0.299f, 0.114f },
     { AVIF_NCLX_MATRIX_COEFFICIENTS_BT601_7_525, "BT.601-7 525", 0.299f, 0.144f },
     { AVIF_NCLX_MATRIX_COEFFICIENTS_ST240, "ST 240", 0.212f, 0.087f },
+    //{ AVIF_NCLX_MATRIX_COEFFICIENTS_YCGCO, "YCgCo", 0.0f, 0.0f }, // Handled elsewhere
     { AVIF_NCLX_MATRIX_COEFFICIENTS_BT2020_NCL, "BT.2020-2 (non-constant luminance)", 0.2627f, 0.0593f },
     //{ AVIF_NCLX_MATRIX_COEFFICIENTS_BT2020_CL, "BT.2020 (constant luminance)", 0.2627f, 0.0593f }, // FIXME: It is not an linear transformation.
     //{ AVIF_NCLX_MATRIX_COEFFICIENTS_ST2085, "ST 2085", 0.0f, 0.0f }, // FIXME: ST2085 can't represent using Kr and Kb.

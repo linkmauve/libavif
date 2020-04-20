@@ -234,6 +234,7 @@ typedef enum avifNclxMatrixCoefficients
     AVIF_NCLX_MATRIX_COEFFICIENTS_BT1700_NTSC = 6,
     AVIF_NCLX_MATRIX_COEFFICIENTS_ST170 = 6,
     AVIF_NCLX_MATRIX_COEFFICIENTS_ST240 = 7,
+    AVIF_NCLX_MATRIX_COEFFICIENTS_YCGCO = 8,
     AVIF_NCLX_MATRIX_COEFFICIENTS_BT2020_NCL = 9,
     AVIF_NCLX_MATRIX_COEFFICIENTS_BT2100 = 9,
     AVIF_NCLX_MATRIX_COEFFICIENTS_BT2020_CL = 10,
@@ -443,6 +444,13 @@ int avifFullToLimitedUV(int depth, int v);
 int avifLimitedToFullY(int depth, int v);
 int avifLimitedToFullUV(int depth, int v);
 
+typedef enum avifReformatMode
+{
+    AVIF_REFORMAT_MODE_YUV_COEFFICIENTS = 0, // Normal YUV conversion using coefficients
+    AVIF_REFORMAT_MODE_IDENTITY,             // Pack GBR directly into YUV planes (AVIF_NCLX_MATRIX_COEFFICIENTS_IDENTITY)
+    AVIF_REFORMAT_MODE_YCGCO                 // Use YCgCo formulas (AVIF_NCLX_MATRIX_COEFFICIENTS_YCGCO)
+} avifReformatMode;
+
 typedef struct avifReformatState
 {
     // YUV coefficients
@@ -464,6 +472,8 @@ typedef struct avifReformatState
     // LUTs for going from YUV limited/full unorm -> full range RGB FP32
     float unormFloatTableY[1 << 12];
     float unormFloatTableUV[1 << 12];
+
+    avifReformatMode mode;
 } avifReformatState;
 avifBool avifPrepareReformatState(avifImage * image, avifRGBImage * rgb, avifReformatState * state);
 
