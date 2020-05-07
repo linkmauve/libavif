@@ -234,11 +234,6 @@ avifImageAllocatePlanes(image, AVIF_PLANES_YUV);
 ... image->yuvPlanes;
 ... image->yuvRowBytes;
 
-// Option 2: Populate RGB planes (if YUV planes are absent, RGB->YUV conversion will automatically happen)
-avifImageAllocatePlanes(image, AVIF_PLANES_RGB);
-... image->rgbPlanes;
-... image->rgbRowBytes;
-
 // Option 2: Convert from interleaved RGB(A)/BGR(A) using a libavif-allocated buffer.
 uint32_t rgbDepth = ...;                        // [8, 10, 12, 16]; Does not need to match image->depth.
                                                 // If >8, rgb->pixels is uint16_t*
