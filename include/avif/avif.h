@@ -155,7 +155,7 @@ typedef enum avifRange
 } avifRange;
 
 // ---------------------------------------------------------------------------
-// avifColorProfile
+// CICP enums - https://www.itu.int/rec/T-REC-H.273-201612-I/en
 
 typedef enum avifColorPrimaries
 {
