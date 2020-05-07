@@ -19,8 +19,8 @@ void avifImageDump(avifImage * avif)
     printf(" * Transfer Char. : %d\n", avif->transferCharacteristics);
     printf(" * Matrix Coeffs. : %d\n", avif->matrixCoefficients);
 
+    printf(" * ICC Profile    : %s (%zu bytes)\n", (avif->icc.size > 0) ? "Present" : "Absent", avif->icc.size);
     printf(" * XMP Metadata   : %s (%zu bytes)\n", (avif->xmp.size > 0) ? "Present" : "Absent", avif->xmp.size);
-    printf(" * ICC Metadata   : %s (%zu bytes)\n", (avif->icc.size > 0) ? "Present" : "Absent", avif->icc.size);
     printf(" * EXIF Metadata  : %s (%zu bytes)\n", (avif->exif.size > 0) ? "Present" : "Absent", avif->exif.size);
 
     if (avif->transformFlags == AVIF_TRANSFORM_NONE) {
