@@ -27,10 +27,10 @@ static const struct avifColorPrimariesTable avifColorPrimariesTables[] = {
 };
 static const int avifColorPrimariesTableSize = sizeof(avifColorPrimariesTables) / sizeof(avifColorPrimariesTables[0]);
 
-void avifColorPrimariesGetValues(avifColorPrimaries ancp, float outPrimaries[8])
+void avifColorPrimariesGetValues(avifColorPrimaries acp, float outPrimaries[8])
 {
     for (int i = 0; i < avifColorPrimariesTableSize; ++i) {
-        if (avifColorPrimariesTables[i].colorPrimariesEnum == ancp) {
+        if (avifColorPrimariesTables[i].colorPrimariesEnum == acp) {
             memcpy(outPrimaries, avifColorPrimariesTables[i].primaries, sizeof(avifColorPrimariesTables[i].primaries));
             return;
         }
@@ -94,7 +94,7 @@ static const struct avifMatrixCoefficientsTable matrixCoefficientsTables[] = {
 
 static const int avifMatrixCoefficientsTableSize = sizeof(matrixCoefficientsTables) / sizeof(matrixCoefficientsTables[0]);
 
-static avifBool calcYUVInfoFromNCLX(avifImage * image, float coeffs[3])
+static avifBool calcYUVInfoFromCICP(avifImage * image, float coeffs[3])
 {
     if (image->matrixCoefficients == AVIF_MATRIX_COEFFICIENTS_CHROMA_DERIVED_NCL) {
         float primaries[8];
@@ -143,7 +143,7 @@ void avifCalcYUVCoefficients(avifImage * image, float * outR, float * outG, floa
     float kg = 1.0f - kr - kb;
 
     float coeffs[3];
-    if (calcYUVInfoFromNCLX(image, coeffs)) {
+    if (calcYUVInfoFromCICP(image, coeffs)) {
         kr = coeffs[0];
         kg = coeffs[1];
         kb = coeffs[2];

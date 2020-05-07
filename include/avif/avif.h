@@ -178,7 +178,7 @@ typedef enum avifColorPrimaries
 } avifColorPrimaries;
 
 // outPrimaries: rX, rY, gX, gY, bX, bY, wX, wY
-void avifColorPrimariesGetValues(avifColorPrimaries ancp, float outPrimaries[8]);
+void avifColorPrimariesGetValues(avifColorPrimaries acp, float outPrimaries[8]);
 avifColorPrimaries avifColorPrimariesFind(float inPrimaries[8], const char ** outName);
 
 typedef enum avifTransferCharacteristics
