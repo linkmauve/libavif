@@ -65,10 +65,15 @@ typedef struct avifContentType
 // colr
 typedef struct avifColourInformationBox
 {
-    avifProfileFormat format;
+    avifBool hasICC;
     const uint8_t * icc;
     size_t iccSize;
-    avifNclxColorProfile nclx;
+
+    avifBool hasNCLX;
+    avifColorPrimaries colorPrimaries;
+    avifTransferCharacteristics transferCharacteristics;
+    avifMatrixCoefficients matrixCoefficients;
+    avifRange range;
 } avifColourInformationBox;
 
 #define MAX_PIXI_PLANE_DEPTHS 4
@@ -582,8 +587,6 @@ static avifBool avifDecoderDataFillImageGrid(avifDecoderData * data,
     unsigned int tileDepth = firstTile->image->depth;
     avifPixelFormat tileFormat = firstTile->image->yuvFormat;
 
-    avifProfileFormat tileProfile = firstTile->image->profileFormat;
-    avifNclxColorProfile * tileNCLX = &firstTile->image->nclx;
     avifRange tileRange = firstTile->image->yuvRange;
     avifBool tileUVPresent = (firstTile->image->yuvPlanes[AVIF_CHAN_U] && firstTile->image->yuvPlanes[AVIF_CHAN_V]);
 
@@ -592,10 +595,9 @@ static avifBool avifDecoderDataFillImageGrid(avifDecoderData * data,
         avifBool uvPresent = (tile->image->yuvPlanes[AVIF_CHAN_U] && tile->image->yuvPlanes[AVIF_CHAN_V]);
         if ((tile->image->width != tileWidth) || (tile->image->height != tileHeight) || (tile->image->depth != tileDepth) ||
             (tile->image->yuvFormat != tileFormat) || (tile->image->yuvRange != tileRange) || (uvPresent != tileUVPresent) ||
-            ((tileProfile == AVIF_PROFILE_FORMAT_NCLX) &&
-             ((tile->image->profileFormat != tileProfile) || (tile->image->nclx.colourPrimaries != tileNCLX->colourPrimaries) ||
-              (tile->image->nclx.transferCharacteristics != tileNCLX->transferCharacteristics) ||
-              (tile->image->nclx.matrixCoefficients != tileNCLX->matrixCoefficients) || (tile->image->nclx.range != tileNCLX->range)))) {
+            ((tile->image->colorPrimaries != firstTile->image->colorPrimaries) ||
+             (tile->image->transferCharacteristics != firstTile->image->transferCharacteristics) ||
+             (tile->image->matrixCoefficients != firstTile->image->matrixCoefficients))) {
             return AVIF_FALSE;
         }
     }
@@ -613,9 +615,9 @@ static avifBool avifDecoderDataFillImageGrid(avifDecoderData * data,
         dstImage->depth = tileDepth;
         dstImage->yuvFormat = tileFormat;
         dstImage->yuvRange = tileRange;
-        if ((dstImage->profileFormat == AVIF_PROFILE_FORMAT_NONE) && (tileProfile == AVIF_PROFILE_FORMAT_NCLX)) {
-            avifImageSetProfileNCLX(dstImage, tileNCLX);
-        }
+        dstImage->colorPrimaries = firstTile->image->colorPrimaries;
+        dstImage->transferCharacteristics = firstTile->image->transferCharacteristics;
+        dstImage->matrixCoefficients = firstTile->image->matrixCoefficients;
     }
 
     avifImageAllocatePlanes(dstImage, alpha ? AVIF_PLANES_A : AVIF_PLANES_YUV);
@@ -857,31 +859,32 @@ static avifBool avifParseColourInformationBox(avifDecoderData * data, const uint
 {
     BEGIN_STREAM(s, raw, rawLen);
 
-    data->properties.prop[propertyIndex].colr.format = AVIF_PROFILE_FORMAT_NONE;
+    data->properties.prop[propertyIndex].colr.hasICC = AVIF_FALSE;
+    data->properties.prop[propertyIndex].colr.hasNCLX = AVIF_FALSE;
 
-    uint8_t colourType[4]; // unsigned int(32) colour_type;
-    CHECK(avifROStreamRead(&s, colourType, 4));
-    if (!memcmp(colourType, "rICC", 4) || !memcmp(colourType, "prof", 4)) {
-        data->properties.prop[propertyIndex].colr.format = AVIF_PROFILE_FORMAT_ICC;
+    uint8_t colorType[4]; // unsigned int(32) color_type;
+    CHECK(avifROStreamRead(&s, colorType, 4));
+    if (!memcmp(colorType, "rICC", 4) || !memcmp(colorType, "prof", 4)) {
+        data->properties.prop[propertyIndex].colr.hasICC = AVIF_TRUE;
         data->properties.prop[propertyIndex].colr.icc = avifROStreamCurrent(&s);
         data->properties.prop[propertyIndex].colr.iccSize = avifROStreamRemainingBytes(&s);
-    } else if (!memcmp(colourType, "nclx", 4)) {
+    } else if (!memcmp(colorType, "nclx", 4)) {
         uint16_t tmp16;
-        // unsigned int(16) colour_primaries;
+        // unsigned int(16) color_primaries;
         CHECK(avifROStreamReadU16(&s, &tmp16));
-        data->properties.prop[propertyIndex].colr.nclx.colourPrimaries = (avifNclxColourPrimaries)tmp16;
+        data->properties.prop[propertyIndex].colr.colorPrimaries = (avifColorPrimaries)tmp16;
         // unsigned int(16) transfer_characteristics;
         CHECK(avifROStreamReadU16(&s, &tmp16));
-        data->properties.prop[propertyIndex].colr.nclx.transferCharacteristics = (avifNclxTransferCharacteristics)tmp16;
+        data->properties.prop[propertyIndex].colr.transferCharacteristics = (avifTransferCharacteristics)tmp16;
         // unsigned int(16) matrix_coefficients;
         CHECK(avifROStreamReadU16(&s, &tmp16));
-        data->properties.prop[propertyIndex].colr.nclx.matrixCoefficients = (avifNclxMatrixCoefficients)tmp16;
+        data->properties.prop[propertyIndex].colr.matrixCoefficients = (avifMatrixCoefficients)tmp16;
         // unsigned int(1) full_range_flag;
         // unsigned int(7) reserved = 0;
         uint8_t tmp8;
         CHECK(avifROStreamRead(&s, &tmp8, 1));
-        data->properties.prop[propertyIndex].colr.nclx.range = (avifRange)(tmp8 & 0x80);
-        data->properties.prop[propertyIndex].colr.format = AVIF_PROFILE_FORMAT_NCLX;
+        data->properties.prop[propertyIndex].colr.range = (avifRange)(tmp8 & 0x80);
+        data->properties.prop[propertyIndex].colr.hasNCLX = AVIF_TRUE;
     }
     return AVIF_TRUE;
 }
@@ -2200,10 +2203,14 @@ avifResult avifDecoderReset(avifDecoder * decoder)
         }
 
         if (colorOBUItem->colrPresent) {
-            if (colorOBUItem->colr.format == AVIF_PROFILE_FORMAT_ICC) {
-                avifImageSetProfileICC(decoder->image, colorOBUItem->colr.icc, colorOBUItem->colr.iccSize);
-            } else if (colorOBUItem->colr.format == AVIF_PROFILE_FORMAT_NCLX) {
-                avifImageSetProfileNCLX(decoder->image, &colorOBUItem->colr.nclx);
+            if (colorOBUItem->colr.hasICC) {
+                avifImageSetMetadataICC(decoder->image, colorOBUItem->colr.icc, colorOBUItem->colr.iccSize);
+            }
+            if (colorOBUItem->colr.hasNCLX) {
+                decoder->image->colorPrimaries = colorOBUItem->colr.colorPrimaries;
+                decoder->image->transferCharacteristics = colorOBUItem->colr.transferCharacteristics;
+                decoder->image->matrixCoefficients = colorOBUItem->colr.matrixCoefficients;
+                decoder->image->yuvRange = colorOBUItem->colr.range;
             }
         }
 
@@ -2309,9 +2316,9 @@ avifResult avifDecoderNextImage(avifDecoder * decoder)
             decoder->image->height = srcColor->height;
             decoder->image->depth = srcColor->depth;
 
-            if (decoder->image->profileFormat == AVIF_PROFILE_FORMAT_NONE && srcColor->profileFormat == AVIF_PROFILE_FORMAT_NCLX) {
-                avifImageSetProfileNCLX(decoder->image, &srcColor->nclx);
-            }
+            decoder->image->colorPrimaries = srcColor->colorPrimaries;
+            decoder->image->transferCharacteristics = srcColor->transferCharacteristics;
+            decoder->image->matrixCoefficients = srcColor->matrixCoefficients;
         }
 
         avifImageStealPlanes(decoder->image, srcColor, AVIF_PLANES_YUV);
