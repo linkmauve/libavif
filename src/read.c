@@ -398,7 +398,7 @@ typedef struct avifDecoderData
     const avifSampleTable * sourceSampleTable; // NULL unless (source == AVIF_DECODER_SOURCE_TRACKS), owned by an avifTrack
     uint32_t primaryItemID;
     uint32_t metaBoxID; // Ever-incrementing ID for tracking which 'meta' box contains an idat, and which idat an iloc might refer to
-    avifBool cicpSet; // True if decoder->image has had its CICP set correctly yet. This allows nclx colr boxes to override AV1 CICP.
+    avifBool cicpSet; // True if avifDecoder's image has had its CICP set correctly yet. This allows nclx colr boxes to override AV1 CICP.
 } avifDecoderData;
 
 static avifDecoderData * avifDecoderDataCreate()
