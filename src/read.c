@@ -864,7 +864,7 @@ static avifBool avifParseColourInformationBox(avifDecoderData * data, const uint
     data->properties.prop[propertyIndex].colr.hasICC = AVIF_FALSE;
     data->properties.prop[propertyIndex].colr.hasNCLX = AVIF_FALSE;
 
-    uint8_t colorType[4]; // unsigned int(32) color_type;
+    uint8_t colorType[4]; // unsigned int(32) colour_type;
     CHECK(avifROStreamRead(&s, colorType, 4));
     if (!memcmp(colorType, "rICC", 4) || !memcmp(colorType, "prof", 4)) {
         data->properties.prop[propertyIndex].colr.hasICC = AVIF_TRUE;
