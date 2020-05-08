@@ -137,7 +137,12 @@ static avifBool calcYUVInfoFromCICP(avifImage * image, float coeffs[3])
 
 void avifCalcYUVCoefficients(avifImage * image, float * outR, float * outG, float * outB)
 {
-    // sRGB (BT.709) defaults
+    // sRGB (BT.709) defaults, as explained here:
+    //
+    // https://github.com/AOMediaCodec/av1-avif/issues/83
+    //
+    // MIAF (ISO/IEC FDIS 23000-22) Section 7.3.6.4 states that matrix_coefficients should be assumed
+    // to be 1 (BT.709) if there is no associated colour property.
     float kr = 0.2126f;
     float kb = 0.0722f;
     float kg = 1.0f - kr - kb;

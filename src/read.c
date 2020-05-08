@@ -397,8 +397,13 @@ typedef struct avifDecoderData
     avifDecoderSource source;
     const avifSampleTable * sourceSampleTable; // NULL unless (source == AVIF_DECODER_SOURCE_TRACKS), owned by an avifTrack
     uint32_t primaryItemID;
-    uint32_t metaBoxID; // Ever-incrementing ID for tracking which 'meta' box contains an idat, and which idat an iloc might refer to
-    avifBool cicpSet; // True if avifDecoder's image has had its CICP set correctly yet. This allows nclx colr boxes to override AV1 CICP.
+    uint32_t metaBoxID; // Ever-incrementing ID for uniquely identifying which 'meta' box contains an idat
+    avifBool cicpSet;   // True if avifDecoder's image has had its CICP set correctly yet.
+                        // This allows nclx colr boxes to override AV1 CICP, as specified in the MIAF
+                        // standard (ISO/IEC 23000-22:2019), section 7.3.6.4:
+                        //
+                        // "The colour information property takes precedence over any colour information in the image
+                        // bitstream, i.e. if the property is present, colour information in the bitstream shall be ignored."
 } avifDecoderData;
 
 static avifDecoderData * avifDecoderDataCreate()
