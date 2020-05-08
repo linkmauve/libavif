@@ -75,7 +75,7 @@ avifBool avifJPEGRead(avifImage * avif, const char * inputFilename, avifPixelFor
     unsigned int iccDataLen;
     if (read_icc_profile(&cinfo, &iccDataTmp, &iccDataLen)) {
         iccData = iccDataTmp;
-        avifImageSetMetadataICC(avif, iccDataTmp, (size_t)iccDataLen);
+        avifImageSetProfileICC(avif, iccDataTmp, (size_t)iccDataLen);
     }
 
     avif->width = cinfo.output_width;

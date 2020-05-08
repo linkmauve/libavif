@@ -145,8 +145,9 @@ void avifImageCopy(avifImage * dstImage, avifImage * srcImage)
     memcpy(&dstImage->irot, &srcImage->irot, sizeof(dstImage->irot));
     memcpy(&dstImage->imir, &srcImage->imir, sizeof(dstImage->pasp));
 
+    avifImageSetProfileICC(dstImage, srcImage->icc.data, srcImage->icc.size);
+
     avifImageSetMetadataExif(dstImage, srcImage->exif.data, srcImage->exif.size);
-    avifImageSetMetadataICC(dstImage, srcImage->icc.data, srcImage->icc.size);
     avifImageSetMetadataXMP(dstImage, srcImage->xmp.data, srcImage->xmp.size);
 
     if (srcImage->yuvPlanes[AVIF_CHAN_Y]) {
@@ -202,7 +203,7 @@ void avifImageDestroy(avifImage * image)
     avifFree(image);
 }
 
-void avifImageSetMetadataICC(avifImage * image, const uint8_t * icc, size_t iccSize)
+void avifImageSetProfileICC(avifImage * image, const uint8_t * icc, size_t iccSize)
 {
     avifRWDataSet(&image->icc, icc, iccSize);
 }

@@ -75,7 +75,7 @@ avifBool avifPNGRead(avifImage * avif, const char * inputFilename, avifPixelForm
     unsigned char * iccpData = NULL;
     png_uint_32 iccpDataLen = 0;
     if (png_get_iCCP(png, info, &iccpProfileName, &iccpCompression, &iccpData, &iccpDataLen) == PNG_INFO_iCCP) {
-        avifImageSetMetadataICC(avif, iccpData, iccpDataLen);
+        avifImageSetProfileICC(avif, iccpData, iccpDataLen);
     }
 
     int rawWidth = png_get_image_width(png, info);

@@ -2207,7 +2207,7 @@ avifResult avifDecoderReset(avifDecoder * decoder)
 
         if (colorOBUItem->colrPresent) {
             if (colorOBUItem->colr.hasICC) {
-                avifImageSetMetadataICC(decoder->image, colorOBUItem->colr.icc, colorOBUItem->colr.iccSize);
+                avifImageSetProfileICC(decoder->image, colorOBUItem->colr.icc, colorOBUItem->colr.iccSize);
             } else if (colorOBUItem->colr.hasNCLX) {
                 data->cicpSet = AVIF_TRUE;
                 decoder->image->colorPrimaries = colorOBUItem->colr.colorPrimaries;

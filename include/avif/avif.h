@@ -326,9 +326,11 @@ typedef struct avifImage
     avifImageRotation irot;
     avifImageMirror imir;
 
+    // ICC Profile
+    avifRWData icc;
+
     // Metadata - set with avifImageSetMetadata*() before write, check .size>0 for existence after read
     avifRWData exif;
-    avifRWData icc;
     avifRWData xmp;
 } avifImage;
 
@@ -337,9 +339,10 @@ avifImage * avifImageCreateEmpty(void);                         // helper for ma
 void avifImageCopy(avifImage * dstImage, avifImage * srcImage); // deep copy
 void avifImageDestroy(avifImage * image);
 
+void avifImageSetProfileICC(avifImage * image, const uint8_t * icc, size_t iccSize);
+
 // Warning: If the Exif payload is set and invalid, avifEncoderWrite() may return AVIF_RESULT_INVALID_EXIF_PAYLOAD
 void avifImageSetMetadataExif(avifImage * image, const uint8_t * exif, size_t exifSize);
-void avifImageSetMetadataICC(avifImage * image, const uint8_t * icc, size_t iccSize);
 void avifImageSetMetadataXMP(avifImage * image, const uint8_t * xmp, size_t xmpSize);
 
 void avifImageAllocatePlanes(avifImage * image, uint32_t planes); // Ignores any pre-existing planes
