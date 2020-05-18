@@ -150,8 +150,8 @@ void avifGetPixelFormatInfo(avifPixelFormat format, avifPixelFormatInfo * info);
 
 typedef enum avifRange
 {
-    AVIF_RANGE_LIMITED = 0,
-    AVIF_RANGE_FULL = 0x80
+    AVIF_RANGE_LIMITED,
+    AVIF_RANGE_FULL
 } avifRange;
 
 // ---------------------------------------------------------------------------
